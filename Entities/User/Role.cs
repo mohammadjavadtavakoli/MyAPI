@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entities
 {
-   public class Role
+   public class Role:BaseEntity
     {
         [Required]
         [StringLength(50)]
