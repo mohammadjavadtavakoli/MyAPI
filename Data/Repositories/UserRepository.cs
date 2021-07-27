@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Data.Repositories
 {
-  public  class UserRepository :Repository<User>
+    public class UserRepository : Repository<User>, IUserRepository
     {
-        public UserRepository(ApplicationDbContext dbContext):base(dbContext)
+        public UserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
 
-        public Task<User> GetUserAndPassword(string username , string password, CancellationToken cancelationtoken)
+        public Task<User> GetUserAndPassword(string username, string password, CancellationToken cancelationtoken)
         {
             var passwordhash = SecurityHelper.GetSha256Hash(password);
             return Table.Where(p => p.UserName == username && p.PasswordHash == passwordhash).SingleOrDefaultAsync(cancelationtoken);
