@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace WebFramework.Api
+namespace WebFramework.Common
 {
     public enum ApiResualtStatusCode
     {
@@ -16,6 +16,9 @@ namespace WebFramework.Api
         [Display(Name = "یافت نشد")]
         NotFound = 3,
         [Display(Name = "لیست خالی است")]
-        ListEmpty = 4
+        ListEmpty = 4,
+        [Display(Name = "خطایی در پردازش رخ داده است")]
+        LogicError = 4
+
     }
 }

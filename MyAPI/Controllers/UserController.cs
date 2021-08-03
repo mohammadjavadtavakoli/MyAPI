@@ -22,13 +22,12 @@ namespace MyApi.Controllers
         {
             this.userRepository = userRepository;
         }
-
         [HttpGet]
 
         public async Task<ActionResult<User>> Get(CancellationToken cancellationToken)
         {
             var users = await userRepository.TableNoTracking.ToListAsync(cancellationToken);
-
+            
             return Ok(users);
         }
 
@@ -47,9 +46,7 @@ namespace MyApi.Controllers
     
         public async Task<ApiResult<User>> Create( UserDto userDto, CancellationToken cancellationToken)
         {
-            var exists = await userRepository.TableNoTracking.AnyAsync(p => p.UserName == userDto.UserName);
-            if (exists)
-                return BadRequest("نام کاربری تکراری است");
+          
             var user = new User
             {
                 Age = userDto.Age,

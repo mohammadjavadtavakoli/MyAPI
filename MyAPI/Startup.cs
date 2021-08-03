@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebFramework.MiddleWare;
 
 namespace MyAPI
 {
@@ -42,9 +43,11 @@ namespace MyAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.CustomExceptionHandler();
+ 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -53,6 +56,8 @@ namespace MyAPI
 
             app.UseHttpsRedirection();
             app.UseMvc();
+
+
         }
     }
 }
