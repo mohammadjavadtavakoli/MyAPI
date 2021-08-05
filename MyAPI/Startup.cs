@@ -1,5 +1,7 @@
 ﻿using Data;
 using Data.Repositories;
+using ElmahCore.Mvc;
+using ElmahCore.Sql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -38,6 +40,11 @@ namespace MyAPI
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddElmah<SqlErrorLog>(option=>
+            {
+                option.Path = "/elmah-error";
+                option.ConnectionString = Configuration.GetConnectionString("SqlServer");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,7 +60,7 @@ namespace MyAPI
             {
                 app.UseHsts();
             }
-
+            app.UseElmah();
             app.UseHttpsRedirection();
             app.UseMvc();
 
