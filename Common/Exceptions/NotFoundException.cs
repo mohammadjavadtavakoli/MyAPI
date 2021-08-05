@@ -7,10 +7,35 @@ namespace Common.Exceptions
 {
     public class NotFoundException : AppException
     {
-        public NotFoundException(string message, ApiResualtStatusCode statusCode)
-            : base(message, ApiResualtStatusCode.NotFound)
+       
+        public NotFoundException()
+           : base(ApiResualtStatusCode.NotFound)
         {
+        }
 
+        public NotFoundException(string message)
+            : base(ApiResualtStatusCode.NotFound, message)
+        {
+        }
+
+        public NotFoundException(object additionalData)
+            : base(ApiResualtStatusCode.NotFound, additionalData)
+        {
+        }
+
+        public NotFoundException(string message, object additionalData)
+            : base(ApiResualtStatusCode.NotFound, message, additionalData)
+        {
+        }
+
+        public NotFoundException(string message, Exception exception)
+            : base(ApiResualtStatusCode.NotFound, message, exception)
+        {
+        }
+
+        public NotFoundException(string message, Exception exception, object additionalData)
+            : base(ApiResualtStatusCode.NotFound, message, exception, additionalData)
+        {
         }
     }
 }
