@@ -29,7 +29,7 @@ namespace WebFramework.MiddleWare
 
         private readonly IHostingEnvironment env;
 
-        public CustomExptionHandlerMiddleware(RequestDelegate next ,ILogger<CustomExptionHandlerMiddleware> logger, IHostingEnvironment hostingEnvironment)
+        public CustomExptionHandlerMiddleware(RequestDelegate next, ILogger<CustomExptionHandlerMiddleware> logger, IHostingEnvironment hostingEnvironment)
         {
             this.next = next;
             this.logger = logger;
@@ -46,24 +46,24 @@ namespace WebFramework.MiddleWare
             {
                 await next(httpContext);
             }
-            catch(AppException ex)
+            catch (AppException ex)
             {
                 logger.LogError(ex, ex.Message);
                 httpStatusCode = ex.HttpStatusCode;
                 apiResualtStatusCode = ex.StatusCode;
-                if(env.IsDevelopment())
+                if (env.IsDevelopment())
                 {
                     var dic = new Dictionary<string, string>
                     {
                         ["Exception"] = ex.Message,
-                        ["StackTrace"] =ex.StackTrace ,   
+                        ["StackTrace"] = ex.StackTrace,
                     };
-                    if(ex.InnerException!=null)
+                    if (ex.InnerException != null)
                     {
                         dic.Add("InnerException.Exception", ex.InnerException.Message);
                         dic.Add("InnerException.StackTrace", ex.StackTrace);
                     }
-                    if(ex.AdditionalData!=null)
+                    if (ex.AdditionalData != null)
                     {
                         dic.Add("AdditionalData", JsonConvert.SerializeObject(ex.AdditionalData));
                     }
@@ -78,15 +78,29 @@ namespace WebFramework.MiddleWare
                 await WriteToResponceAsync();
 
                 logger.LogError(ex, ex.Message);
-                
+
             }
-           
-            catch (Exception)
+
+            catch (Exception Exception)
             {
-                logger.LogError("خطایی رخ داده است");
-                var apiresult = new ApiResult(false, ApiResualtStatusCode.ServerError);
-                var json = JsonConvert.SerializeObject(apiresult);
-               await httpContext.Response.WriteAsync(json);
+                logger.LogError(Exception, Exception.Message);
+                if (env.IsDevelopment())
+                {
+                    var dic = new Dictionary<string, string>
+                    {
+                        ["Exception"] = Exception.Message,
+                        ["StackTrace"] = Exception.StackTrace,
+                    };
+                    if (Exception.InnerException != null)
+                    {
+                        dic.Add("InnerException.Exception", Exception.InnerException.Message);
+                        dic.Add("InnerException.StackTrace", Exception.StackTrace);
+                    }
+
+                    message = JsonConvert.SerializeObject(dic);
+                }
+                await WriteToResponceAsync();
+                
             }
 
             async Task WriteToResponceAsync()
