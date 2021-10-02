@@ -48,7 +48,7 @@ namespace WebFramework.MiddleWare
             }
             catch (AppException ex)
             {
-                logger.LogError(ex, ex.Message);
+                //logger.LogError(ex, ex.Message);
                 httpStatusCode = ex.HttpStatusCode;
                 apiResualtStatusCode = ex.StatusCode;
                 if (env.IsDevelopment())
@@ -83,7 +83,7 @@ namespace WebFramework.MiddleWare
 
             catch (Exception Exception)
             {
-                logger.LogError(Exception, Exception.Message);
+                //logger.LogError(Exception, Exception.Message);
                 if (env.IsDevelopment())
                 {
                     var dic = new Dictionary<string, string>
