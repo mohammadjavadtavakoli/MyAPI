@@ -48,7 +48,7 @@ namespace WebFramework.MiddleWare
             }
             catch (AppException ex)
             {
-                //logger.LogError(ex, ex.Message);
+                logger.LogError(ex, ex.Message);
                 httpStatusCode = ex.HttpStatusCode;
                 apiResualtStatusCode = ex.StatusCode;
                 if (env.IsDevelopment())
@@ -76,8 +76,6 @@ namespace WebFramework.MiddleWare
                 }
 
                 await WriteToResponceAsync();
-
-                logger.LogError(ex, ex.Message);
 
             }
 
