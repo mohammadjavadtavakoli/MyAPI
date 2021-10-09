@@ -11,10 +11,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Services;
+using Services.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebFramework.Configuration;
 using WebFramework.MiddleWare;
 
 namespace MyAPI
@@ -37,14 +40,16 @@ namespace MyAPI
             {
                 option.UseSqlServer(Configuration.GetConnectionString("SqlServer"));
             });
-
+            
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IJwtService, JwtService>();
             services.AddElmah<SqlErrorLog>(option=>
             {
                 option.Path = "/elmah-error";
                 option.ConnectionString = Configuration.GetConnectionString("SqlServer");
             });
+            services.AddJwtAuthentication();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,6 +67,7 @@ namespace MyAPI
             }
             app.UseElmah();
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
 
 

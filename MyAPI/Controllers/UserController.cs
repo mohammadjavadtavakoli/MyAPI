@@ -1,8 +1,11 @@
-﻿using Data.Repositories;
+﻿using Common.Exceptions;
+using Data.Repositories;
 using Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyAPI.Models;
+using Services.Services;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,13 +20,14 @@ namespace MyApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository userRepository;
-
-        public UserController(IUserRepository userRepository)
+        private readonly IJwtService jwtService;
+        public UserController(IUserRepository userRepository , IJwtService jwtService)
         {
             this.userRepository = userRepository;
+            this.jwtService = jwtService;
         }
         [HttpGet]
-
+        [Authorize]
         public async Task<ActionResult<User>> Get(CancellationToken cancellationToken)
         {
             var users = await userRepository.TableNoTracking.ToListAsync(cancellationToken);
@@ -40,6 +44,18 @@ namespace MyApi.Controllers
                 return NotFound();
             }
             return user;
+        }
+        [HttpGet("[action]")]
+        public async Task<string> Token(string username , string password , CancellationToken cancellationToken)
+        {
+            var user = await userRepository.GetUserAndPassword(username, password,cancellationToken);
+            if(user==null)
+            {
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            }
+            var jwt = jwtService.Generate(user);
+
+            return jwt;
         }
 
         [HttpPost]
