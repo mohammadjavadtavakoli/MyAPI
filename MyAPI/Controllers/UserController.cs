@@ -1,4 +1,5 @@
-﻿using Common.Exceptions;
+﻿using Common;
+using Common.Exceptions;
 using Data.Repositories;
 using Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MyAPI.Models;
 using Services.Services;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using WebFramework.ActionFilter;
@@ -27,11 +29,17 @@ namespace MyApi.Controllers
             this.jwtService = jwtService;
         }
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<User>> Get(CancellationToken cancellationToken)
         {
+            var userName = HttpContext.User.Identity.GetUserName();
+            userName = HttpContext.User.Identity.Name;
+            var userId = HttpContext.User.Identity.GetUserId();
+            var useridInt = HttpContext.User.Identity.GetUserId<int>();
+            var phoneNumber = HttpContext.User.Identity.FindFirstValue("PhoneNumber");
+            var role = HttpContext.User.Identity.FindFirstValue(ClaimTypes.Role);
+
             var users = await userRepository.TableNoTracking.ToListAsync(cancellationToken);
-            
             return Ok(users);
         }
 
@@ -46,6 +54,7 @@ namespace MyApi.Controllers
             return user;
         }
         [HttpGet("[action]")]
+        [AllowAnonymous]
         public async Task<string> Token(string username , string password , CancellationToken cancellationToken)
         {
             var user = await userRepository.GetUserAndPassword(username, password,cancellationToken);

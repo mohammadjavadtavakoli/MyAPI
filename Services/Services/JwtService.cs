@@ -1,4 +1,6 @@
-﻿using Entities;
+﻿using Common;
+using Entities;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Services.Services;
 using System;
@@ -11,20 +13,25 @@ namespace Services
 {
     public class JwtService: IJwtService
     {
+        private readonly SiteSettings siteSettings;
+        public JwtService(IOptionsSnapshot<SiteSettings> optionsSnapshot)
+        {
+            this.siteSettings = optionsSnapshot.Value;
+        }
 
         public string Generate(User user)
         {
-            var secretkey = Encoding.UTF8.GetBytes("MySecretKey123456789");
+            var secretkey = Encoding.UTF8.GetBytes(siteSettings.JwtSettings.SecretKey);
             var SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretkey), SecurityAlgorithms.HmacSha256);
             var claim = _GetClaim(user);
 
             var descriotion = new SecurityTokenDescriptor
             {
-                Issuer = "MyWebSite",
-                Audience = "MyWebSite",
+                Issuer = siteSettings.JwtSettings.Issuer,
+                Audience = siteSettings.JwtSettings.Audience,
                 IssuedAt = DateTime.Now,
-                NotBefore = DateTime.Now.AddMinutes(0),
-                Expires = DateTime.Now.AddHours(1),
+                NotBefore = DateTime.Now.AddMinutes(siteSettings.JwtSettings.NotBeforeMinutes),
+                Expires = DateTime.Now.AddHours(siteSettings.JwtSettings.ExpirationMinutes),
                 SigningCredentials = SigningCredentials,
                 Subject =new ClaimsIdentity(claim)
 
