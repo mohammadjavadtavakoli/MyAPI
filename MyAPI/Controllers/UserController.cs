@@ -44,6 +44,7 @@ namespace MyApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+      
         public async Task<ApiResult<User>> Get(int id, CancellationToken cancellationToken)
         {
             var user = await userRepository.GetByIdAsync(cancellationToken, id);
@@ -51,6 +52,7 @@ namespace MyApi.Controllers
             {
                 return NotFound();
             }
+            await userRepository.UpdateSecurityStampAsync(user, cancellationToken);
             return user;
         }
         [HttpGet("[action]")]

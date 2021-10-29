@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,18 @@ namespace WebFramework.MiddleWare
             {
                 await next(httpContext);
             }
+            //catch (SecurityTokenExpiredException exception)
+            //{
+            //    logger.LogError(exception, exception.Message);
+            //    SetUnAuthorizeResponse(exception);
+            //    await WriteToResponceAsync();
+            //}
+            //catch (UnauthorizedAccessException exception)
+            //{
+            //    logger.LogError(exception, exception.Message);
+            //    SetUnAuthorizeResponse(exception);
+            //    await WriteToResponceAsync();
+            //}
             catch (AppException ex)
             {
                 logger.LogError(ex, ex.Message);
@@ -108,6 +121,25 @@ namespace WebFramework.MiddleWare
                 httpContext.Response.StatusCode = (int)httpStatusCode;
                 httpContext.Response.ContentType = "application/json";
                 await httpContext.Response.WriteAsync(json);
+            }
+
+            void SetUnAuthorizeResponse(Exception exception)
+            {
+                httpStatusCode = HttpStatusCode.Unauthorized;
+                apiResualtStatusCode = ApiResualtStatusCode.UnAuthorized;
+
+                if (env.IsDevelopment())
+                {
+                    var dic = new Dictionary<string, string>
+                    {
+                        ["Exception"] = exception.Message,
+                        ["StackTrace"] = exception.StackTrace
+                    };
+                    if (exception is SecurityTokenExpiredException tokenException)
+                        dic.Add("Expires", tokenException.Expires.ToString());
+
+                    message = JsonConvert.SerializeObject(dic);
+                }
             }
         }
     }

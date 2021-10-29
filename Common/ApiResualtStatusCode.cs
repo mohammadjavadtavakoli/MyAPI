@@ -18,7 +18,8 @@ namespace WebFramework.Common
         [Display(Name = "لیست خالی است")]
         ListEmpty = 4,
         [Display(Name = "خطایی در پردازش رخ داده است")]
-        LogicError = 4
-
+        LogicError = 4,
+        [Display(Name = "خطای احراز هویت")]
+        UnAuthorized = 6
     }
 }

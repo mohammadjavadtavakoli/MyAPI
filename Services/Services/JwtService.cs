@@ -23,6 +23,9 @@ namespace Services
         {
             var secretkey = Encoding.UTF8.GetBytes(siteSettings.JwtSettings.SecretKey);
             var SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretkey), SecurityAlgorithms.HmacSha256);
+
+            var Encryptkey = Encoding.UTF8.GetBytes(siteSettings.JwtSettings.Encryptkey);
+            var EncryptingCredentials = new EncryptingCredentials(new SymmetricSecurityKey(Encryptkey), SecurityAlgorithms.Aes128KW, SecurityAlgorithms.Aes128CbcHmacSha256);
             var claim = _GetClaim(user);
 
             var descriotion = new SecurityTokenDescriptor
@@ -33,6 +36,7 @@ namespace Services
                 NotBefore = DateTime.Now.AddMinutes(siteSettings.JwtSettings.NotBeforeMinutes),
                 Expires = DateTime.Now.AddHours(siteSettings.JwtSettings.ExpirationMinutes),
                 SigningCredentials = SigningCredentials,
+                EncryptingCredentials= EncryptingCredentials,
                 Subject =new ClaimsIdentity(claim)
 
             };
@@ -51,7 +55,8 @@ namespace Services
             {
                 new Claim(ClaimTypes.Name,user.UserName),
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
-                new Claim("PhoneNumber","09120746448")
+                new Claim("PhoneNumber","09120746448"),
+                new Claim("SecurityStamp",user.SecurityStamp.ToString())
             };
 
             var roles = new Role[] { new Role { Name = "admin" } };
