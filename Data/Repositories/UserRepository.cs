@@ -26,7 +26,7 @@ namespace Data.Repositories
 
         public Task UpdateSecurityStampAsync(User user, CancellationToken cancellationToken)
         {
-            user.SecurityStamp = Guid.NewGuid();
+            //user.SecurityStamp = Guid.NewGuid();
             return UpdateAsync(user, cancellationToken);
         }
 

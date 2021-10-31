@@ -31,7 +31,6 @@ namespace MyAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            var x = configuration.GetSection("SiteSettings");
             siteSettings = configuration.GetSection("SiteSettings").Get<SiteSettings>();
         }
 
@@ -41,7 +40,6 @@ namespace MyAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
-
             services.AddMvc(options=> {
 
                 options.Filters.Add(new AuthorizeFilter());
@@ -52,6 +50,7 @@ namespace MyAPI
             {
                 option.UseSqlServer(Configuration.GetConnectionString("SqlServer"));
             });
+
             
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
@@ -62,6 +61,7 @@ namespace MyAPI
                 option.ConnectionString = Configuration.GetConnectionString("SqlServer");
             });
             services.AddJwtAuthentication(siteSettings.JwtSettings);
+            services.AddCustomIdentity(siteSettings.IdentitySettings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

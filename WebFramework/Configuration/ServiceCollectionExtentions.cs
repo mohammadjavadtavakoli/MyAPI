@@ -86,8 +86,8 @@ namespace WebFramework.Configuration
                         var userId = claimsIdentity.GetUserId<int>();
                         var user = await userRepository.GetByIdAsync(context.HttpContext.RequestAborted, userId);
 
-                        if (user.SecurityStamp != Guid.Parse(securityStamp))
-                            context.Fail("Token secuirty stamp is not valid.");
+                        //if (user.SecurityStamp != Guid.Parse(securityStamp))
+                        //    context.Fail("Token secuirty stamp is not valid.");
 
                         //var validatedUser = await applicationSignInManager.ValidateSecurityStampAsync(context.Principal);
                         //if (validatedUser == null)
