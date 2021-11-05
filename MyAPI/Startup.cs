@@ -46,6 +46,9 @@ namespace MyAPI
 
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+
+            services.AddCustomIdentity(siteSettings.IdentitySettings);
+
             services.AddDbContext<ApplicationDbContext>(option =>
             {
                 option.UseSqlServer(Configuration.GetConnectionString("SqlServer"));
@@ -55,13 +58,13 @@ namespace MyAPI
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IJwtService, JwtService>();
-            services.AddElmah<SqlErrorLog>(option=>
-            {
-                option.Path = siteSettings.ElmahPath;
-                option.ConnectionString = Configuration.GetConnectionString("SqlServer");
-            });
+            //services.AddElmah<SqlErrorLog>(option=>
+            //{
+            //    option.Path = siteSettings.ElmahPath;
+            //    option.ConnectionString = Configuration.GetConnectionString("SqlServer");
+            //});
+
             services.AddJwtAuthentication(siteSettings.JwtSettings);
-            services.AddCustomIdentity(siteSettings.IdentitySettings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,7 +80,7 @@ namespace MyAPI
             {
                 app.UseHsts();
             }
-            app.UseElmah();
+            //app.UseElmah();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();

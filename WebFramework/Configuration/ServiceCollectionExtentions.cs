@@ -2,8 +2,11 @@
 using Common.Exceptions;
 using Common.Utilities;
 using Data.Repositories;
+using Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -24,8 +27,8 @@ namespace WebFramework.Configuration
             {
 
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
             }).AddJwtBearer(options =>
             {
@@ -71,14 +74,14 @@ namespace WebFramework.Configuration
                     },
                     OnTokenValidated = async context =>
                     {
-                        //var applicationSignInManager = context.HttpContext.RequestServices.GetRequiredService<IApplicationSignInManager>();
+                        var applicationSignInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
                         var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
 
                         var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
                         if (claimsIdentity.Claims?.Any() != true)
                             context.Fail("This token has no claims.");
 
-                        var securityStamp = claimsIdentity.FindFirstValue("SecurityStamp");
+                        var securityStamp = claimsIdentity.FindFirstValue("AspNet.Identity.SecurityStamp");
                         if (!securityStamp.HasValue())
                             context.Fail("This token has no secuirty stamp");
 
@@ -89,9 +92,9 @@ namespace WebFramework.Configuration
                         //if (user.SecurityStamp != Guid.Parse(securityStamp))
                         //    context.Fail("Token secuirty stamp is not valid.");
 
-                        //var validatedUser = await applicationSignInManager.ValidateSecurityStampAsync(context.Principal);
-                        //if (validatedUser == null)
-                        //    context.Fail("Token secuirty stamp is not valid.");
+                        var validatedUser = await applicationSignInManager.ValidateSecurityStampAsync(context.Principal);
+                        if (validatedUser == null)
+                            context.Fail("Token secuirty stamp is not valid.");
 
                         if (!user.IsActive)
                             context.Fail("User is not active.");
@@ -100,8 +103,8 @@ namespace WebFramework.Configuration
                     },
                     OnChallenge = context =>
                     {
-                        //var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(JwtBearerEvents));
-                        //logger.LogError("OnChallenge error", context.Error, context.ErrorDescription);
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(JwtBearerEvents));
+                        logger.LogError("OnChallenge error", context.Error, context.ErrorDescription);
 
                         if (context.AuthenticateFailure != null)
                         {

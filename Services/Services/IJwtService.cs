@@ -2,11 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Services.Services
 {
     public interface IJwtService
     {
-         string Generate(User user);
+        Task<string> Generate(User user);
     }
 }

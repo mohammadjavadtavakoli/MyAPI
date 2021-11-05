@@ -3,6 +3,7 @@ using Common.Exceptions;
 using Data.Repositories;
 using Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyAPI.Models;
@@ -23,13 +24,20 @@ namespace MyApi.Controllers
     {
         private readonly IUserRepository userRepository;
         private readonly IJwtService jwtService;
-        public UserController(IUserRepository userRepository , IJwtService jwtService)
+        private readonly UserManager<User> userManager;
+        private readonly RoleManager<Role> roleManager;
+        private readonly SignInManager<User> signInManager;
+        public UserController(IUserRepository userRepository, IJwtService jwtService, UserManager<User> userManager
+            , RoleManager<Role> roleManager, SignInManager<User> signInManager)
         {
             this.userRepository = userRepository;
             this.jwtService = jwtService;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
+            this.signInManager = signInManager;
         }
         [HttpGet]
-        //[Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> Get(CancellationToken cancellationToken)
         {
             var userName = HttpContext.User.Identity.GetUserName();
@@ -44,11 +52,12 @@ namespace MyApi.Controllers
         }
 
         [HttpGet("{id:int}")]
-      
+        [AllowAnonymous]
         public async Task<ApiResult<User>> Get(int id, CancellationToken cancellationToken)
         {
+            var userData = await userManager.FindByIdAsync(id.ToString());
             var user = await userRepository.GetByIdAsync(cancellationToken, id);
-            if(user==null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -57,31 +66,46 @@ namespace MyApi.Controllers
         }
         [HttpGet("[action]")]
         [AllowAnonymous]
-        public async Task<string> Token(string username , string password , CancellationToken cancellationToken)
+        public async Task<string> Token(string username, string password, CancellationToken cancellationToken)
         {
-            var user = await userRepository.GetUserAndPassword(username, password,cancellationToken);
-            if(user==null)
+            //var user = await userRepository.GetUserAndPassword(username, password, cancellationToken);
+
+            var user = await userManager.FindByNameAsync(username);
+            if(user == null)
             {
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
             }
-            var jwt = jwtService.Generate(user);
+            var passwordvalidate = await userManager.CheckPasswordAsync(user, password);
+
+            if (!passwordvalidate)
+            {
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            }
+            var jwt = await jwtService.Generate(user);
 
             return jwt;
         }
 
         [HttpPost]
-    
-        public async Task<ApiResult<User>> Create( UserDto userDto, CancellationToken cancellationToken)
+        [AllowAnonymous]
+        public async Task<ApiResult<User>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
-          
+
             var user = new User
             {
                 Age = userDto.Age,
                 FullName = userDto.FullName,
                 Gender = userDto.Gender,
-                UserName = userDto.UserName
+                UserName = userDto.UserName,
+                Email=userDto.Email
             };
-            await userRepository.AddAsync(user,userDto.password, cancellationToken);
+
+            var Result = await userManager.CreateAsync(user, userDto.password);
+
+            var resultRole = await roleManager.CreateAsync(new Role { Name = "Admin", Description = "AdminRole" });
+
+            var AddToRoleResult = await userManager.AddToRoleAsync(user, "Admin");
+            //await userRepository.AddAsync(user,userDto.password, cancellationToken);
             return user;
         }
 
@@ -101,7 +125,7 @@ namespace MyApi.Controllers
             await userRepository.UpdateAsync(updateUser, cancellationToken);
 
             return Ok();
-           
+
         }
 
         [HttpDelete]
