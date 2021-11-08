@@ -37,7 +37,7 @@ namespace MyAPI
 
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
             services.AddMvc(options=> {
@@ -54,10 +54,13 @@ namespace MyAPI
                 option.UseSqlServer(Configuration.GetConnectionString("SqlServer"));
             });
 
-            
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IJwtService, JwtService>();
+
+            //IOC Continer .Net Core 
+            //services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            //services.AddScoped<IUserRepository, UserRepository>();
+            //services.AddScoped<IJwtService, JwtService>();
+
+
             //services.AddElmah<SqlErrorLog>(option=>
             //{
             //    option.Path = siteSettings.ElmahPath;
@@ -65,6 +68,9 @@ namespace MyAPI
             //});
 
             services.AddJwtAuthentication(siteSettings.JwtSettings);
+
+            return services.BuildAutoFacServiceProvider();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
