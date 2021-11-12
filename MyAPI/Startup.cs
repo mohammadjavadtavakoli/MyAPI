@@ -40,11 +40,8 @@ namespace MyAPI
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
-            services.AddMvc(options=> {
 
-                options.Filters.Add(new AuthorizeFilter());
-
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMinimalMVC();
 
 
             services.AddCustomIdentity(siteSettings.IdentitySettings);
@@ -77,15 +74,9 @@ namespace MyAPI
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.CustomExceptionHandler();
+
+            app.UseHsts(env);
  
-            if (env.IsDevelopment())
-            {
-                //app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
             //app.UseElmah();
             app.UseHttpsRedirection();
             app.UseAuthentication();

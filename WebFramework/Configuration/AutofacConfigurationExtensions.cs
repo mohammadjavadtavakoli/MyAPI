@@ -1,7 +1,9 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common;
+using Data;
 using Data.Repositories;
+using Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.Services;
@@ -19,12 +21,12 @@ namespace WebFramework.Configuration
             //containerBuilder.RegisterType<JwtService>().As<IJwtService>();
             //containerBuilder.RegisterType<IUserRepository>().As<UserRepository>();
 
-            containerBuilder.RegisterGeneric(typeof(IRepository<>)).As(typeof(Repository<>));
+            containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
 
             var commonAsembly = typeof(SiteSettings).Assembly;
-            var entitiesAsembly = typeof(SiteSettings).Assembly;
-            var dataAsembly = typeof(SiteSettings).Assembly;
-            var serviceAsembly = typeof(SiteSettings).Assembly;
+            var entitiesAsembly = typeof(IEntity).Assembly;
+            var dataAsembly = typeof(ApplicationDbContext).Assembly;
+            var serviceAsembly = typeof(JwtService).Assembly;
 
             containerBuilder.RegisterAssemblyTypes(commonAsembly, entitiesAsembly, dataAsembly, serviceAsembly)
                 .AssignableTo<IScopedDependency>()
