@@ -14,6 +14,6 @@ namespace MyAPI.Models
         public int AuthorId { get; set; }
 
         public string CategoryName { get; set; }
-        public string AuthorName { get; set; }
+        public string AuthorFullName { get; set; }
     }
 }

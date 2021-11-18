@@ -1,8 +1,10 @@
-﻿using Common;
+﻿using AutoMapper;
+using Common;
 using Data;
 using Data.Repositories;
 using ElmahCore.Mvc;
 using ElmahCore.Sql;
+using Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MyAPI.Models;
 using Services;
 using Services.Services;
 using System;
@@ -32,6 +35,13 @@ namespace MyAPI
         {
             Configuration = configuration;
             siteSettings = configuration.GetSection("SiteSettings").Get<SiteSettings>();
+
+            Mapper.Initialize(config =>
+            {
+                config.CreateMap<Post, PostDto>().ReverseMap()
+                .ForMember(p => p.Author, opt => opt.Ignore())
+                .ForMember(p => p.Category, opt => opt.Ignore());
+            });
         }
 
 
@@ -76,7 +86,7 @@ namespace MyAPI
             app.CustomExceptionHandler();
 
             app.UseHsts(env);
- 
+
             //app.UseElmah();
             app.UseHttpsRedirection();
             app.UseAuthentication();

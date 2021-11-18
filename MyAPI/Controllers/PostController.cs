@@ -1,4 +1,6 @@
-﻿using Data.Repositories;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Data.Repositories;
 using Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,59 +33,83 @@ namespace MyAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PostDto>>> Get(CancellationToken cancellationToken)
         {
-            var list = await _repository.TableNoTracking.Select(p => new PostDto
-            {
-                Id = p.Id,
-                Title = p.Title,
-                Description = p.Description,
-                Categoryid = p.Categoryid,
-                AuthorId = p.AuthorId,
-                AuthorName = p.Author.FullName,
-                CategoryName = p.Category.Name
 
-            }).ToListAsync(cancellationToken);
+            #region old Code
+            //var posts = await _repository.TableNoTracking.Include(p => p.Category).Include(p => p.AuthorId)
+            //    .ToListAsync(cancellationToken);
+
+            //var list = posts.Select(p =>
+            //{
+            //    var dto = Mapper.Map<PostDto>(posts);
+            //    return dto;
+            //}).ToList();
+
+
+
+            //var list = await _repository.TableNoTracking.Select(p => new PostDto
+            //{
+            //    Id = p.Id,
+            //    Title = p.Title,
+            //    Description = p.Description,
+            //    Categoryid = p.Categoryid,
+            //    AuthorId = p.AuthorId,
+            //    AuthorFullName = p.Author.FullName,
+            //    CategoryName = p.Category.Name
+
+            //}).ToListAsync(cancellationToken);
+            #endregion
+
+            var list = await _repository.TableNoTracking.ProjectTo<PostDto>().ToListAsync(cancellationToken);
 
             return Ok(list);
         }
 
         // GET api/<PostController>/5
-        [HttpGet("{id}")]
-        public async Task<ApiResult<PostDto>> Get(int id, CancellationToken cancellationToken)
+        [HttpGet("{id:guid}")]
+        public async Task<ApiResult<PostDto>> Get(Guid id, CancellationToken cancellationToken)
         {
-            var model = await _repository.GetByIdAsync(cancellationToken, id);
-            if (model == null)
+            //var model = await _repository.GetByIdAsync(cancellationToken, id);
+            var dto = await _repository.TableNoTracking.ProjectTo<PostDto>().SingleOrDefaultAsync(p => p.Id == id);
+            if (dto == null)
             {
                 return NotFound();
             }
-
-            var dto = new PostDto
-            {
-                Id = model.Id,
-                Title = model.Title,
-                Description = model.Description,
-                Categoryid = model.Categoryid,
-                AuthorId = model.AuthorId,
-                AuthorName = model.Author.FullName,
-                CategoryName = model.Category.Name
-            };
+            #region old Code
+            //var dto = new PostDto
+            //{
+            //    Id = model.Id,
+            //    Title = model.Title,
+            //    Description = model.Description,
+            //    Categoryid = model.Categoryid,
+            //    AuthorId = model.AuthorId,
+            //    AuthorFullName = model.Author.FullName,
+            //    CategoryName = model.Category.Name
+            //};
+            #endregion
 
             return dto;
         }
+        [Route("Create")]
         [HttpPost]
         public async Task<ApiResult<PostDto>> Create(PostDto postDto, CancellationToken cancellationToken)
         {
 
-            var model = new Post
-            {
-                Title = postDto.Title,
-                Description = postDto.Description,
-                Categoryid = postDto.Categoryid,
-                AuthorId = postDto.AuthorId
-            };
+            var model = Mapper.Map<Post>(postDto);
+
+            #region old Code
+            //var model = new Post
+            //{
+            //    Title = postDto.Title,
+            //    Description = postDto.Description,
+            //    Categoryid = postDto.Categoryid,
+            //    AuthorId = postDto.AuthorId
+            //};
+            #endregion
 
             await _repository.AddAsync(model, cancellationToken);
 
-            //Becuse Lazy Lood in EF Core Disable
+            #region old Code
+            //Becuse Lazy Lood in EF Core Disable , it does not work
             //model = await _repository.GetByIdAsync(cancellationToken, model.Id);
             //var dto = new PostDto
             //{
@@ -96,48 +122,61 @@ namespace MyAPI.Controllers
             //    CategoryName = model.Category.Name
             //};
 
-            var ResultDto = await _repository.TableNoTracking.Select(p => new PostDto
-            {
-                Id = p.Id,
-                Title = p.Title,
-                Description = p.Description,
-                Categoryid = p.Categoryid,
-                AuthorId = p.AuthorId,
-                AuthorName = p.Author.FullName,
-                CategoryName = p.Category.Name
 
-            }).SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
+            //var ResultDto = await _repository.TableNoTracking.Select(p => new PostDto
+            //{
+            //    Id = p.Id,
+            //    Title = p.Title,
+            //    Description = p.Description,
+            //    Categoryid = p.Categoryid,
+            //    AuthorId = p.AuthorId,
+            //    AuthorFullName = p.Author.FullName,
+            //    CategoryName = p.Category.Name
+
+            //}).SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
+
+            #endregion
+
+            var ResultDto = await _repository.TableNoTracking.ProjectTo<PostDto>().SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
 
             return ResultDto;
         }
-        [HttpPut]
-        public async Task<ApiResult<PostDto>> Update(int id, PostDto dto, CancellationToken cancellationToken)
+        [HttpPut("{id:guid}")]
+        public async Task<ApiResult<PostDto>> Update(Guid id, PostDto dto, CancellationToken cancellationToken)
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
-            model.Title = dto.Title;
-            model.Description = dto.Description;
-            model.Categoryid = dto.Categoryid;
-            model.AuthorId = dto.AuthorId;
+            Mapper.Map(dto, model);
+
+            #region oldCode
+            //model.Title = dto.Title;
+            //model.Description = dto.Description;
+            //model.Categoryid = dto.Categoryid;
+            //model.AuthorId = dto.AuthorId;
+            #endregion
 
             await _repository.UpdateAsync(model, cancellationToken);
 
-            var ResultDto = await _repository.TableNoTracking.Select(p => new PostDto
-            {
-                Id = p.Id,
-                Title = p.Title,
-                Description = p.Description,
-                Categoryid = p.Categoryid,
-                AuthorId = p.AuthorId,
-                AuthorName = p.Author.FullName,
-                CategoryName = p.Category.Name
+            #region old code
+            //var ResultDto = await _repository.TableNoTracking.Select(p => new PostDto
+            //{
+            //    Id = p.Id,
+            //    Title = p.Title,
+            //    Description = p.Description,
+            //    Categoryid = p.Categoryid,
+            //    AuthorId = p.AuthorId,
+            //    AuthorFullName = p.Author.FullName,
+            //    CategoryName = p.Category.Name
 
-            }).SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
+            //}).SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
+            #endregion
+
+            var ResultDto = await _repository.TableNoTracking.ProjectTo<PostDto>().SingleOrDefaultAsync(p => p.Id == model.Id, cancellationToken);
 
             return ResultDto;
         }
 
-        [HttpDelete]
-        public async Task<ApiResult> Delete(int id , PostDto postDto , CancellationToken cancellationToken)
+        [HttpDelete("{id:guid}")]
+        public async Task<ApiResult> Delete(int id, PostDto postDto, CancellationToken cancellationToken)
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
             await _repository.DeleteAsync(model, cancellationToken);
@@ -145,22 +184,5 @@ namespace MyAPI.Controllers
             return Ok();
         }
 
-        // POST api/<PostController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<PostController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<PostController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
