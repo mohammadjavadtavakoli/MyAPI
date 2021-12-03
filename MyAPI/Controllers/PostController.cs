@@ -35,7 +35,7 @@ namespace MyAPI.Controllers
         {
 
             #region old Code
-            //var posts = await _repository.TableNoTracking.Include(p => p.Category).Include(p => p.AuthorId)
+            //var posts = await _repository.TableNoTracking.Include(p => p.Category).Include(p => p.Author)
             //    .ToListAsync(cancellationToken);
 
             //var list = posts.Select(p =>
@@ -110,6 +110,7 @@ namespace MyAPI.Controllers
 
             #region old Code
             //Becuse Lazy Lood in EF Core Disable , it does not work
+
             //model = await _repository.GetByIdAsync(cancellationToken, model.Id);
             //var dto = new PostDto
             //{
@@ -141,12 +142,14 @@ namespace MyAPI.Controllers
 
             return ResultDto;
         }
-        [HttpPut("{id:guid}")]
+        [Route("Update")]
+        [HttpPut]
         public async Task<ApiResult<PostDto>> Update(Guid id, PostDto dto, CancellationToken cancellationToken)
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
+            dto.Id = model.Id;
             Mapper.Map(dto, model);
-
+           
             #region oldCode
             //model.Title = dto.Title;
             //model.Description = dto.Description;
