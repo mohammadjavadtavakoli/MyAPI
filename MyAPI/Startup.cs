@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebFramework.Configuration;
+using WebFramework.CustomMapping;
 using WebFramework.MiddleWare;
 
 namespace MyAPI
@@ -36,12 +37,18 @@ namespace MyAPI
             Configuration = configuration;
             siteSettings = configuration.GetSection("SiteSettings").Get<SiteSettings>();
 
-            Mapper.Initialize(config =>
-            {
-                config.CreateMap<Post, PostDto>().ReverseMap()
-                .ForMember(p => p.Author, opt => opt.Ignore())
-                .ForMember(p => p.Category, opt => opt.Ignore());
-            });
+
+            AutoMapperConfiguration.InitializeAutoMapper();
+
+            #region old Code AutoMapper
+            //Mapper.Initialize(config =>
+            //{
+            //    config.CreateMap<Post, PostDto>().ReverseMap()
+            //    .ForMember(p => p.Author, opt => opt.Ignore())
+            //    .ForMember(p => p.Category, opt => opt.Ignore());
+            //});
+            #endregion
+
         }
 
 
