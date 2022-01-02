@@ -70,6 +70,10 @@ namespace MyAPI.Controllers
         {
             //var model = await _repository.GetByIdAsync(cancellationToken, id);
             var dto = await _repository.TableNoTracking.ProjectTo<PostDto>().SingleOrDefaultAsync(p => p.Id == id);
+
+            //Post post = null;
+            //var resultdto = PostDto.FromEntity(post);
+
             if (dto == null)
             {
                 return NotFound();
@@ -94,7 +98,9 @@ namespace MyAPI.Controllers
         public async Task<ApiResult<PostDto>> Create(PostDto postDto, CancellationToken cancellationToken)
         {
 
-            var model = Mapper.Map<Post>(postDto);
+            //var model = Mapper.Map<Post>(postDto);
+            var model = postDto.ToEntity();
+
 
             #region old Code
             //var model = new Post
@@ -148,7 +154,9 @@ namespace MyAPI.Controllers
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
             dto.Id = model.Id;
-            Mapper.Map(dto, model);
+
+            //Mapper.Map(dto, model);
+            model = dto.ToEntity(model);
            
             #region oldCode
             //model.Title = dto.Title;

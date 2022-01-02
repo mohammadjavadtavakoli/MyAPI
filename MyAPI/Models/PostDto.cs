@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebFramework.Api;
 
 namespace MyAPI.Models
 {
-    public class PostDto
+    public class PostDto:BaseDto<PostDto,Post,Guid>
     {
-        public Guid Id { get; set; }
+       
         public string Title { get; set; }
         public string Description { get; set; }
         public int Categoryid { get; set; }
