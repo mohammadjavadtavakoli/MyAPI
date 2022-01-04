@@ -83,6 +83,8 @@ namespace MyAPI
 
             services.AddJwtAuthentication(siteSettings.JwtSettings);
 
+            services.AddCustomApiVersioning();
+
             return services.BuildAutoFacServiceProvider();
 
         }

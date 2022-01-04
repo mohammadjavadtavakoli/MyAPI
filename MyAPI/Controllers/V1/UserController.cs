@@ -15,12 +15,10 @@ using System.Threading.Tasks;
 using WebFramework.ActionFilter;
 using WebFramework.Api;
 
-namespace MyApi.Controllers
+namespace MyApi.Controllers.V1
 {
-    [Route("api/[controller]")]
-    [ApiResultFilter]
-    [ApiController]
-    public class UserController : ControllerBase
+  
+    public class UserController : BaseController
     {
         private readonly IUserRepository userRepository;
         private readonly IJwtService jwtService;

@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebFramework.ActionFilter;
+using WebFramework.Api;
 
-namespace MyAPI.Controllers
+namespace MyAPI.Controllers.V1
 {
+    [AllowAnonymous]
+    [ApiResultFilter]
+    //[ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase

@@ -16,13 +16,12 @@ using WebFramework.Api;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace MyAPI.Controllers
+namespace MyAPI.Controllers.V1
 {
     [AllowAnonymous]
-    [ApiResultFilter]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PostController : ControllerBase
+    [ApiVersion("1")]
+
+    public class PostController : BaseController
     {
         private readonly IRepository<Post> _repository;
         public PostController(IRepository<Post> repository)
@@ -31,7 +30,7 @@ namespace MyAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PostDto>>> Get(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<List<PostDto>>> Get(CancellationToken cancellationToken)
         {
 
             #region old Code
@@ -66,7 +65,7 @@ namespace MyAPI.Controllers
 
         // GET api/<PostController>/5
         [HttpGet("{id:guid}")]
-        public async Task<ApiResult<PostDto>> Get(Guid id, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<PostDto>> Get(Guid id, CancellationToken cancellationToken)
         {
             //var model = await _repository.GetByIdAsync(cancellationToken, id);
             var dto = await _repository.TableNoTracking.ProjectTo<PostDto>().SingleOrDefaultAsync(p => p.Id == id);
@@ -95,7 +94,7 @@ namespace MyAPI.Controllers
         }
         [Route("Create")]
         [HttpPost]
-        public async Task<ApiResult<PostDto>> Create(PostDto postDto, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<PostDto>> Create(PostDto postDto, CancellationToken cancellationToken)
         {
 
             //var model = Mapper.Map<Post>(postDto);
@@ -150,7 +149,7 @@ namespace MyAPI.Controllers
         }
         [Route("Update")]
         [HttpPut]
-        public async Task<ApiResult<PostDto>> Update(Guid id, PostDto dto, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<PostDto>> Update(Guid id, PostDto dto, CancellationToken cancellationToken)
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
             dto.Id = model.Id;
@@ -187,7 +186,7 @@ namespace MyAPI.Controllers
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ApiResult> Delete(int id, PostDto postDto, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             var model = await _repository.GetByIdAsync(cancellationToken, id);
             await _repository.DeleteAsync(model, cancellationToken);

@@ -5,6 +5,7 @@ using Data.Repositories;
 using Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -115,6 +116,17 @@ namespace WebFramework.Configuration
                     }
                 };
             });
+        }
+
+        public static void AddCustomApiVersioning(this IServiceCollection services)
+        {
+            services.AddApiVersioning(option=>
+            {
+                //option.ApiVersionReader = new UrlSegmentApiVersionReader();
+                //option.ApiVersionReader = new QueryStringApiVersionReader("api-version");
+                option.ReportApiVersions = true;
+            });
+
         }
     }
 }
