@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using WebFramework.Configuration;
 using WebFramework.CustomMapping;
 using WebFramework.MiddleWare;
+using WebFramework.Swagger;
 
 namespace MyAPI
 {
@@ -85,6 +86,8 @@ namespace MyAPI
 
             services.AddCustomApiVersioning();
 
+            //services.AddSwagger();
+
             return services.BuildAutoFacServiceProvider();
 
         }
@@ -98,6 +101,9 @@ namespace MyAPI
 
             //app.UseElmah();
             app.UseHttpsRedirection();
+
+            //app.UseSwaggerAndUI();
+
             app.UseAuthentication();
             app.UseMvc();
 
