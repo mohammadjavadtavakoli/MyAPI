@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyAPI</name>
+    </assembly>
+    <members>
+        <member name="M:MyAPI.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>
+            
+            </summary>
+            <param name="app"></param>
+            <param name="env"></param>
+        </member>
+        <member name="M:MyApi.Controllers.V1.UserController.Token(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            This method generate JWT Token
+            </summary>
+            <param name="username">The UserName of User</param>
+            <param name="password">The Password of User</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

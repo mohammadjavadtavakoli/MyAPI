@@ -22,17 +22,36 @@ namespace MyAPI.Controllers.V2
             this._repository = repository;
         }
 
+        [HttpGet("GetAll")]
+        public ActionResult<List<Post>> GetAll()
+        {
+            return _repository.TableNoTracking.ToList();
+        }
+
+        public override Task<ApiResult<PostDto>> Create(PostDto postDto, CancellationToken cancellationToken)
+        {
+            return base.Create(postDto, cancellationToken);
+        }
+
         [NonAction]
         public override Task<ApiResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);
         }
 
-
-        [HttpGet("GetAll")]
-        public ActionResult<List<Post>> GetAll()
+        public override Task<ActionResult<List<PostDto>>> Get(CancellationToken cancellationToken)
         {
-            return _repository.TableNoTracking.ToList();
+            return base.Get(cancellationToken);
+        }
+
+        public override Task<ApiResult<PostDto>> Get(Guid id, CancellationToken cancellationToken)
+        {
+            return base.Get(id, cancellationToken);
+        }
+
+        public override Task<ApiResult<PostDto>> Update(Guid id, PostDto dto, CancellationToken cancellationToken)
+        {
+            return base.Update(id, dto, cancellationToken);
         }
     }
 }

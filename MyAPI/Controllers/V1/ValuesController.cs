@@ -11,10 +11,10 @@ namespace MyAPI.Controllers.V1
 {
     [AllowAnonymous]
     [ApiResultFilter]
-    //[ApiVersion("1")]
-    [Route("api/[controller]")]
+    [ApiVersion("1")]
+    //[Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class ValuesController : BaseController
     {
         // GET api/values
         [HttpGet]

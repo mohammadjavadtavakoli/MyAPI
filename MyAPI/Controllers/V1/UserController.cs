@@ -17,7 +17,8 @@ using WebFramework.Api;
 
 namespace MyApi.Controllers.V1
 {
-  
+    [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class UserController : BaseController
     {
         private readonly IUserRepository userRepository;
@@ -62,6 +63,13 @@ namespace MyApi.Controllers.V1
             await userRepository.UpdateSecurityStampAsync(user, cancellationToken);
             return user;
         }
+        /// <summary>
+        /// This method generate JWT Token
+        /// </summary>
+        /// <param name="username">The UserName of User</param>
+        /// <param name="password">The Password of User</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet("[action]")]
         [AllowAnonymous]
         public async Task<string> Token(string username, string password, CancellationToken cancellationToken)
