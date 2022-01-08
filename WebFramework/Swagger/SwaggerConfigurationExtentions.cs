@@ -46,6 +46,18 @@ namespace WebFramework.Swagger
                 });
                 #endregion
 
+                option.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization",
+                    Name = "Authorization",
+                    In = "header"
+                });
+
+                option.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer",new string[] { } }
+                });
+
             });
         }
 
