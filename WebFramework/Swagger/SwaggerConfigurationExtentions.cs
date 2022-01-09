@@ -53,10 +53,14 @@ namespace WebFramework.Swagger
                     In = "header"
                 });
 
-                option.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                {
-                    {"Bearer",new string[] { } }
-                });
+                //option.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                //{
+                //    {"Bearer",new string[] { } }
+                //});
+
+                option.OperationFilter<UnauthorizedResponsesOperationFilter>(true, "Bearer");
+
+
 
             });
         }
