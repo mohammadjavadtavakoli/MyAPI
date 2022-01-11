@@ -11,14 +11,15 @@
             <param name="app"></param>
             <param name="env"></param>
         </member>
-        <member name="M:MyApi.Controllers.V1.UserController.Token(System.String,System.String,System.Threading.CancellationToken)">
+        <member name="M:MyApi.Controllers.V1.UserController.OAuthToken(MyAPI.Models.TokenRequest,System.Threading.CancellationToken)">
             <summary>
-            This method generate JWT Token
+            This method generate Token 
             </summary>
-            <param name="username">The UserName of User</param>
-            <param name="password">The Password of User</param>
-            <param name="cancellationToken"></param>
+            <param name="tokenRequest">tokenRequest</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
+            <exception cref="T:System.Exception">Exception</exception>
+            <exception cref="T:Common.Exceptions.BadRequestException">BadRequestException</exception>
         </member>
     </members>
 </doc>

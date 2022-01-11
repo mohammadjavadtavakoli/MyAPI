@@ -46,11 +46,17 @@ namespace WebFramework.Swagger
                 });
                 #endregion
 
-                option.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                // option.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                // {
+                //     Description = "JWT Authorization",
+                //     Name = "Authorization",
+                //     In = "header"
+                // });
+                
+                option.AddSecurityDefinition("Bearer",new OAuth2Scheme()
                 {
-                    Description = "JWT Authorization",
-                    Name = "Authorization",
-                    In = "header"
+                    Flow = "password",
+                    TokenUrl = "https://localhost:5001/api/V1/User/OAuthToken"
                 });
 
                 //option.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>

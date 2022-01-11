@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System;
+using Common;
 using Common.Exceptions;
 using Data.Repositories;
 using Entities;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Services;
 using WebFramework.ActionFilter;
 using WebFramework.Api;
 
@@ -26,6 +28,7 @@ namespace MyApi.Controllers.V1
         private readonly UserManager<User> userManager;
         private readonly RoleManager<Role> roleManager;
         private readonly SignInManager<User> signInManager;
+
         public UserController(IUserRepository userRepository, IJwtService jwtService, UserManager<User> userManager
             , RoleManager<Role> roleManager, SignInManager<User> signInManager)
         {
@@ -35,6 +38,7 @@ namespace MyApi.Controllers.V1
             this.roleManager = roleManager;
             this.signInManager = signInManager;
         }
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> Get(CancellationToken cancellationToken)
@@ -60,55 +64,90 @@ namespace MyApi.Controllers.V1
             {
                 return NotFound();
             }
+
             await userRepository.UpdateSecurityStampAsync(user, cancellationToken);
             return user;
         }
-        /// <summary>
-        /// This method generate JWT Token
-        /// </summary>
-        /// <param name="username">The UserName of User</param>
-        /// <param name="password">The Password of User</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        [HttpGet("[action]")]
-        [AllowAnonymous]
-        public async Task<string> Token(string username, string password, CancellationToken cancellationToken)
-        {
-            //var user = await userRepository.GetUserAndPassword(username, password, cancellationToken);
 
-            var user = await userManager.FindByNameAsync(username);
-            if(user == null)
+        // /// <summary>
+        // /// This method generate JWT Token
+        // /// </summary>
+        // /// <param name="username">The UserName of User</param>
+        // /// <param name="password">The Password of User</param>
+        // /// <param name="cancellationToken"></param>
+        // /// <returns></returns>
+        // [HttpGet("[action]")]
+        // [AllowAnonymous]
+        // public async Task<string> Token(string username, string password, CancellationToken cancellationToken)
+        // {
+        //     //var user = await userRepository.GetUserAndPassword(username, password, cancellationToken);
+        //
+        //     var user = await userManager.FindByNameAsync(username);
+        //     if(user == null)
+        //     {
+        //         throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+        //     }
+        //     var passwordvalidate = await userManager.CheckPasswordAsync(user, password);
+        //
+        //     if (!passwordvalidate)
+        //     {
+        //         throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+        //     }
+        //     var jwt = await jwtService.Generate(user);
+        //
+        //     return jwt;
+        // }
+        /// <summary>
+        /// This method generate Token 
+        /// </summary>
+        /// <param name="tokenRequest">tokenRequest</param>
+        /// <param name="cancellationToken">cancellationToken</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Exception</exception>
+        /// <exception cref="BadRequestException">BadRequestException</exception>
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public async Task<ActionResult> OAuthToken([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
+        {
+            if (!tokenRequest.grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new Exception("OAuth flow is not password");
+            }
+
+            var user = await userManager.FindByNameAsync(tokenRequest.username);
+            if (user == null)
             {
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
             }
-            var passwordvalidate = await userManager.CheckPasswordAsync(user, password);
+
+            var passwordvalidate = await userManager.CheckPasswordAsync(user, tokenRequest.password);
 
             if (!passwordvalidate)
             {
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
             }
+
             var jwt = await jwtService.Generate(user);
 
-            return jwt;
+            return new JsonResult(jwt);
         }
 
         [HttpPost]
         [AllowAnonymous]
         public async Task<ApiResult<User>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
-
             var user = new User
             {
                 Age = userDto.Age,
                 FullName = userDto.FullName,
                 Gender = userDto.Gender,
                 UserName = userDto.UserName,
-                Email=userDto.Email
+                Email = userDto.Email
             };
 
             var Result = await userManager.CreateAsync(user, userDto.password);
 
-            var resultRole = await roleManager.CreateAsync(new Role { Name = "Admin", Description = "AdminRole" });
+            var resultRole = await roleManager.CreateAsync(new Role {Name = "Admin", Description = "AdminRole"});
 
             var AddToRoleResult = await userManager.AddToRoleAsync(user, "Admin");
             //await userRepository.AddAsync(user,userDto.password, cancellationToken);
@@ -131,7 +170,6 @@ namespace MyApi.Controllers.V1
             await userRepository.UpdateAsync(updateUser, cancellationToken);
 
             return Ok();
-
         }
 
         [HttpDelete]

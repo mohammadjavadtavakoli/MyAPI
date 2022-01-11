@@ -24,7 +24,7 @@ namespace Services
             this.signInManager = signInManager;
         }
 
-        public async Task<string> Generate(User user)
+        public async Task<AccessToken> Generate(User user)
         {
             var secretkey = Encoding.UTF8.GetBytes(siteSettings.JwtSettings.SecretKey);
             var SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretkey), SecurityAlgorithms.HmacSha256);
@@ -46,11 +46,14 @@ namespace Services
 
             };
 
+            // var TokenHandler = new JwtSecurityTokenHandler();
+            // var securityToken = TokenHandler.CreateToken(descriotion);
+            // var jwt = TokenHandler.WriteToken(securityToken);
+            
             var TokenHandler = new JwtSecurityTokenHandler();
-            var securityToken = TokenHandler.CreateToken(descriotion);
-            var jwt = TokenHandler.WriteToken(securityToken);
+            var securityToken = TokenHandler.CreateJwtSecurityToken(descriotion) ;
 
-            return jwt;
+            return new AccessToken(securityToken);
         }
 
         private async Task<IEnumerable<Claim>> _GetClaimAsync(User user)

@@ -8,6 +8,6 @@ namespace Services.Services
 {
     public interface IJwtService
     {
-        Task<string> Generate(User user);
+        Task<AccessToken> Generate(User user);
     }
 }
